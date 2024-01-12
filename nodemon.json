@@ -1,0 +1,12 @@
+{
+  "watch": [
+    "./src",
+    "./.env",
+    "./package.json",
+    "./tsconfig.json",
+    "./jest.config.ts"
+  ],
+  "ext": "*",
+  "exec": "npx ts-node ./src/index.ts",
+  "exclude": ["/node_modules"]
+}
