@@ -20,7 +20,7 @@ export default {
 
     getUserWallet(req, res, next) {
         //const user = req.jwt.user
-        const user = req.params.id
+        const user = req.params.user
         const walletService = new WalletService()
         walletService.ReadSingleResource({ user_id: user }).then(result => {
             return successResponse(result, res)
@@ -53,14 +53,14 @@ export default {
             })
     },
 
-    getWallets(req, res, next) {
-        const walletService = new WalletService()
-        walletService.ReadResource().then(result => {
-            return successResponse(result, res)
-        })
-            .catch(err => [
-                next(err)
-            ])
-    }
+    // getWallets(req, res, next) {
+    //     const walletService = new WalletService()
+    //     walletService.ReadResource().then(result => {
+    //         return successResponse(result, res)
+    //     })
+    //         .catch(err => [
+    //             next(err)
+    //         ])
+    // }
 
 }

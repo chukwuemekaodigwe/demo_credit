@@ -5,7 +5,7 @@ import Transaction from "../interfaces/transaction.interface";
 import Wallet from "../interfaces/wallet.interface";
 import WalletService from "./wallet.model";
 
-
+type Data = Wallet & Transaction & any
 export default class TransactionService extends CrudServiceHelper {
 
     constructor() {
@@ -16,25 +16,32 @@ export default class TransactionService extends CrudServiceHelper {
     public AddTransaction(data: Transaction) {
 
         return new Promise((resolve, reject) => {
-            new WalletService().getWalletDetail({ user_id: data.user_id }).then((wallet) => {
-                db.transaction(function (trx) {
-                    return trx
-                        .returning('*')
-                        .insert(data)
-                        .into('transactions')
-                        .then((res) => {
-                            trx('wallets')
-                                .where({ user_id: data.user_id })
-                                .update({ balance: (wallet.balance + data.amount) })
-                                .returning('*')
-                            resolve(res)
-                        })
-                        .catch((err) => {
-                            reject(err)
-                        })
-                })
+
+            db.transaction(function (trx) {
+                return trx
+                    .insert(data)
+                    .into('transactions')
+                    .then((res) => {
+                        trx
+                            .increment('balance', data.amount)
+                            .where('user_id', data.user_id)
+                            .into('wallets')
+                            .then(r => r)
+                            .catch(e => e)
+
+                            trx.select('*').from('transactions').where('id', res[0]).first().then(result=>{
+                                resolve(result)
+                            })
+                            .catch(err=>{
+                                reject(err)
+                            })
+                            
+                        //resolve(res[0])
+                    })
+                    .catch((err) => {
+                        reject(err)
+                    })
             })
         })
     }
-
 }

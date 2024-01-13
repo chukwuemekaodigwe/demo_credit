@@ -1,4 +1,4 @@
-import knex from '../database/connection'
+import db from '../database/connection'
 import Wallet from '../interfaces/wallet.interface'
 import User from '../interfaces/user.interface'
 import Transaction from '../interfaces/transaction.interface'
@@ -15,11 +15,12 @@ export default class CrudService {
 
     public CreateResource(data: Data) {
         return new Promise((resolve, reject) => {
-            knex(this.resourcename)
+            db(this.resourcename)
                 .insert(data)
-                .select<Data>('*')
                 .then((res) => {
-                    resolve(res)
+                    db.from(this.resourcename).select('*').where('id', res[0]).first().then(result => {
+                        resolve(result)
+                    })
                 })
                 .catch((err) => {
                     reject(err)
@@ -27,11 +28,11 @@ export default class CrudService {
         })
     }
 
-    public ReadResource() {
+    public ReadResource(option:object) {
         return new Promise((resolve, reject) => {
-            knex(this.resourcename)
+            db(this.resourcename)
                 .select()
-                .returning('*')
+                .where(option)
                 .then((res) => {
                     resolve(res)
                 })
@@ -42,7 +43,7 @@ export default class CrudService {
     }
 
     /**
-     * 
+ x    * 
      * @param option the where codition object
      * this makes the resource reusable with any conditon 
      * available to the child class
@@ -50,17 +51,18 @@ export default class CrudService {
      */
     public ReadSingleResource(option: object) {
         return new Promise((resolve, reject) => {
-            knex(this.resourcename)
-                .returning('*')
+            console.log(option)
+            db(this.resourcename)
+                
                 .select()
                 .where(option)
+                .first()
                 .then((res) => {
                     resolve(res)
                 })
                 .catch((err) => {
                     reject(err)
                 })
-
         })
     }
     /**
@@ -71,12 +73,14 @@ export default class CrudService {
      */
     public UpdateResource(option: object, data: Data) {
         return new Promise((resolve, reject) => {
-            knex(this.resourcename)
+            db(this.resourcename)
                 .where(option)
                 .update(data)
-                .returning<Data>('*')
                 .then((res) => {
-                    resolve(res)
+                    db.from(this.resourcename).select('*').where(option).first().then(result => {
+                        resolve(result)
+                    })
+
                 })
                 .catch((err) => {
                     reject(err)
@@ -93,16 +97,31 @@ export default class CrudService {
      */
     public DeleteResource(option: object) {
         return new Promise((resolve, reject) => {
-            knex(this.resourcename)
+            db(this.resourcename)
                 .where(option)
                 .del()
-                .returning('*')
                 .then((res) => {
                     resolve(res)
                 })
                 .catch((err) => {
                     reject(err)
                 })
+        })
+    }
+
+
+    public ResourceById(id: number) {
+        return new Promise((resolve, reject) => {
+            db(this.resourcename)
+                .where('id', id)
+                .first()
+                .then(res => {
+                    resolve(res)
+                })
+                .catch(err => {
+                    reject(err)
+                })
+
         })
     }
 }
