@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('transactionId').notNullable();
         table.string('beneficiary').nullable()
         table.text('comments').nullable();
-        table.timestamps()
+        table.timestamps(false, true)
     })
 }
 

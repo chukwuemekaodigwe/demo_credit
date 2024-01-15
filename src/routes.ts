@@ -1,26 +1,121 @@
 import express, { Express } from "express";
-import walletController from "./controllers/wallet.controller";
-import transactionController from './controllers/transaction.controller'
-import userController from './controllers/user.controller'
+import Validator from './validators'
+import Middleware from './middlewares';
+import Controller from './controllers'
 
 const route = express.Router()
 
-route.post('/wallets', walletController.createWallet)
-route.get('/wallets/:id', walletController.getWalletById)
-route.get('/wallets/user/:user', walletController.getUserWallet)
-route.delete('/wallets/:id', walletController.deleteWallet)
+route.get('/', (req, res) => res.send(`Welcome to Demo Credit`))
+route.post('/users',
+    Validator.UserValidator.validationRules(),
+    Validator.UserValidator.hasValidFields,
+    Controller.User.createUser
+)
+route.get('/users/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.User.singleUser
+])
+route.patch('/users/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.User.updateUser
+])
+route.delete('/users/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.User.deleteUser
+])
 
-route.post('/transactions/deposit', transactionController.addDeposit)
-route.post('/transactions/withdraw', transactionController.addWithdrawal)
-route.post('/transactions/transfer', transactionController.addTransfer)
-route.get('/transactions/:id', transactionController.getTransactionById)
-route.get('/transactions/user/:user', transactionController.getUserTransactions)
-//route.patch('/transactions/:id', transactionController.updateTransaction)
-route.delete('/transactions/:id', transactionController.deleteTransaction)
+route.post('/login',
+    Validator.ValidLoginFields.validationRules(),
+    Validator.ValidLoginFields.hasValidFields,
+    Middleware.auth.VerifyCredentials,
+    Controller.Auth.login
+)
 
-route.post('/users', userController.createUser)
-route.get('/users/:id', userController.singleUser)
-route.patch('/users/:id', userController.updateUser)
-route.delete('/users/:id', userController.deleteUser)
+route.post('/wallets', [
+    Middleware.auth.hasValidToken,
+    Controller.Wallet.createWallet
+])
+route.get('/wallets/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.Wallet.getWalletById
+])
+
+/**
+ * Used to access the auth user wallet
+ */
+route.get('/wallets', [
+    Middleware.auth.hasValidToken,
+    Controller.Wallet.getUserWallet
+])
+
+route.delete('/wallets/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.Wallet.deleteWallet
+])
+
+
+route.post('/transactions/deposit',
+    Validator.ValidTransactionFields.validationRules(),
+    Validator.ValidTransactionFields.hasValidFields,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Controller.Transaction.addDeposit
+)
+route.post('/transactions/withdraw',
+    Validator.ValidTransactionFields.validationRules(),
+    Validator.ValidTransactionFields.hasValidFields,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Middleware.transactions.hasEnoughBal,
+    Controller.Transaction.addWithdrawal
+)
+route.post('/transactions/transfer',
+    Validator.ValidTransactionFields.validationRules(),
+    Validator.IsValidForTransfer(),
+    Validator.ValidTransactionFields.hasValidFields,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Middleware.transactions.hasEnoughBal,
+    Controller.Transaction.addTransfer
+)
+route.get('/transactions/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Controller.Transaction.getTransactionById
+])
+route.get('/transactions', [
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Controller.Transaction.getUserTransactions
+])
+
+// Transaction by user_id
+route.get('/transactions/user/:user', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Controller.Transaction.getUserTransactions
+])
+route.delete('/transactions/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
+    Controller.Transaction.deleteTransaction
+])
+
 
 export default route

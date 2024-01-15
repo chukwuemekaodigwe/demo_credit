@@ -14,7 +14,7 @@ export default class WalletService extends CrudServiceHelper {
     public getWalletDetail(option: object) {
           return new Promise((resolve, reject) => {
 
-            db.select<Data>('*')
+            db.select('*')
             .from('wallets')
             .join('users', 'users.id', 'wallets.user_id')
             .where(option)

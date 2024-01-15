@@ -4,16 +4,16 @@ import db from '../database/connection'
 import Transaction from "../interfaces/transaction.interface";
 import Wallet from "../interfaces/wallet.interface";
 import WalletService from "./wallet.model";
+import User from "../interfaces/user.interface";
 
-type Data = Wallet & Transaction & any
+type Data = Wallet & Transaction & User
 export default class TransactionService extends CrudServiceHelper {
 
     constructor() {
         super('transactions')
     }
 
-
-    public AddTransaction(data: Transaction) {
+    public AddTransaction(data: Transaction) : Promise<Data> {
 
         return new Promise((resolve, reject) => {
 
@@ -41,6 +41,21 @@ export default class TransactionService extends CrudServiceHelper {
                     .catch((err) => {
                         reject(err)
                     })
+            })
+        })
+    }
+
+    public ReadResource(option: object): Promise<Array<Data>> {
+        return new Promise((resolve, reject)=>{
+            db.select('*')
+            .from('transactions')
+            //.join('users', 'users.id', 'transactions.beneficiary')
+            //.join('wallets', 'wallets.user_id', 'transactions.beneficiary')
+            .then(result=>{
+                resolve(result)
+            })
+            .catch(error=>{
+                reject(error)
             })
         })
     }

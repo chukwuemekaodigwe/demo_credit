@@ -1,8 +1,9 @@
 import Transaction from '../interfaces/transaction.interface'
 import Wallet from '../interfaces/wallet.interface'
 import TransactionService from '../models/transaction.model'
-import WalletService from '../models/wallet.model'
-import { successResponse, resourceCreatedResponse, isEligible, userErrResponse } from '../helpers/util'
+import { successResponse, resourceCreatedResponse, getUserFromWalletId, errResponse } from '../helpers/util'
+import { Request, Response, NextFunction } from 'express'
+import { matchedData } from 'express-validator'
 
 type Data = Wallet & Transaction
 const DEPOSIT = 1
@@ -10,17 +11,18 @@ const WITHDRWAL = 2
 const TRANSFER = 3
 
 export default {
-
-    addDeposit: (req, res, next) => {
-        const user = req.body.user_id
+    addDeposit: (req: Request & any, res: Response, next: NextFunction) => {
+        const reqData = matchedData(req)  // accessing the santized data from 'express-validator'
+        const user = req.jwt.user // user_id from the jsonwebtoken decrypted crdentials
         const timestamp = new Date().getTime().toString()
         const model = new TransactionService()
+
         const data: Transaction = {
             user_id: user,
             transactiontype: DEPOSIT,
-            amount: (req.body.amount),
+            amount: (reqData.amount),
             transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
-            comment: `${req.body.comments}`
+            comment: `Deposit by User | ${reqData.comments}`
         }
         model.AddTransaction(data).then(result => {
             resourceCreatedResponse(result, res)
@@ -31,73 +33,75 @@ export default {
     },
 
 
-    addWithdrawal: (req, res, next) => {
+    addWithdrawal: (req: Request & any, res: Response, next: NextFunction) => {
+        const reqData = matchedData(req)
+        const user = req.jwt.user
+        const timestamp = new Date().getTime().toString()
+        const model = new TransactionService()
+        const data: Transaction = {
+            user_id: user,
+            transactiontype: WITHDRWAL,
+            amount: -(reqData.amount),
+            transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
+            comment: `Withdrawal by user, Comment: ${reqData.comments}`
+        }
 
-        const user = req.body.user_id
-        isEligible(user, req.body.amount).then(() => {
-            const timestamp = new Date().getTime().toString()
-            const model = new TransactionService()
-
-            const data: Transaction = {
-                user_id: user,
-                transactiontype: WITHDRWAL,
-                amount: -(req.body.amount),
-                transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
-                comment: `Withdrawal by user, Comment: ${req.body.comments}`
-            }
-
-            model.AddTransaction(data).then(async (result: number) => {
-                resourceCreatedResponse(result, res)
-            })
-                .catch(err => {
-                    next(err)
-                })
-
-        }).catch(() => {
-            userErrResponse('You dont have effor balance to perform ths transaction', res)
+        model.AddTransaction(data).then((result) => {
+            resourceCreatedResponse(result, res)
         })
+            .catch(err => {
+                next(err)
+            })
     },
 
-    addTransfer: (req, res, next) => {
 
-        const user = 1 //req.jwt.user
-
+    addTransfer: (req: Request & any, res: Response, next: NextFunction) => {
+        const reqData = matchedData(req)
+        const user = req.jwt.user
         const timestamp = new Date().getTime().toString()
         const model = new TransactionService()
 
-        isEligible(user, req.body.amount).then(() => {
+        getUserFromWalletId(reqData.beneficiary).then(beneficiary => {
+
             const data: Transaction = {
                 user_id: user,
                 transactiontype: TRANSFER,
-                amount: -(req.body.amount),
+                amount: -(reqData.amount),
                 transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
-                comment: `Transfered by user `, //: ${req.jwt.email},\n\r ${req.body.comments}`,
-                beneficiary: req.body.beneficiary,
+                comment: `${reqData.comments}`,
+                beneficiary: beneficiary.walletId,
             }
-
             model.AddTransaction(data).then(result => {
                 model.AddTransaction({
                     ...data,
-                    user_id: req.body.beneficiary,
-                    amount: req.body.amount,
+                    user_id: beneficiary.user_id,
+                    amount: reqData.amount,
                     beneficiary: undefined,
-                    //comments: `Sent by ${wallet.name}`
-                })
-                resourceCreatedResponse(result, res)
+                    comment: `Transfer Sent by ${req.jwt.email} | ${reqData.comments}`
+                }).then(result2 => result2)
+
+                return resourceCreatedResponse(result, res)
+                    
             })
                 .catch(err => {
                     next(err)
                 })
         })
-            .catch(() => {
-                userErrResponse('You dont have enough balance to perform this action', res)
+            .catch(err => {
+                return errResponse({
+                    errtype: 'Invalid Request'+err,
+                    message: 'Beneficiary not found, please cross check wallet Id',
+                    statusCode: 400,
+                    response: res
+                })
             })
     },
 
-    getUserTransactions: (req, res, next) => {
-        const user = req.params.user
+    getUserTransactions: (req: Request & any, res: Response, next: NextFunction) => {
+        const user = req.params.user ? req.params.user : req.jwt.user
         const model = new TransactionService()
         model.ReadResource({ user_id: user }).then(result => {
+
             successResponse(result, res)
         })
             .catch(err => {
@@ -105,7 +109,7 @@ export default {
             })
     },
 
-    getTransactionById: (req, res, next) => {
+    getTransactionById: (req: Request & any, res: Response, next: NextFunction) => {
         const user = req.params.id
         const model = new TransactionService()
         model.ReadSingleResource({ id: user }).then(result => {
@@ -116,27 +120,7 @@ export default {
             })
     },
 
-
-    // updateTransaction: (req, res, next) => {
-    //     const model = new TransactionService()
-    //     const id = req.params.id
-    //     const data:Transaction = {
-    //         user_id: req.body.user,
-    //         transactionId: req.body.transId,
-    //         amount: req.body.amount,
-    //         comment: req.body.comments,
-    //         transactiontype: req.body.type
-    //     }
-    //     model.UpdateResource({ id: id }, data).then(result => {
-    //         successResponse(result, res)
-    //     })
-    //         .catch(err => {
-    //             next(err)
-    //             console.log(err)
-    //         })
-    // },
-
-    deleteTransaction: (req, res, next) => {
+    deleteTransaction: (req: Request & any, res: Response, next: NextFunction) => {
         const model = new TransactionService()
         model.DeleteResource({ id: req.params.id }).then(result => {
             successResponse(result, res)

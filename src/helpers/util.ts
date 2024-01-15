@@ -3,16 +3,18 @@ import { Response } from "express"
 import db from '../database/connection'
 import * as Crypto from 'node:crypto'
 import WalletService from "../models/wallet.model"
+import Wallet from "../interfaces/wallet.interface"
+import Transaction from "../interfaces/transaction.interface"
+
+import { RequestHandler } from 'express'
 
 
-export const generateRandom = () => {
+export const generateRandom = (): string => {
     let random_byte = new Uint32Array(1)
     random_byte = getRandomValues(random_byte)
 
     let time = new Date().getTime().toString().substring(-3, 3)
     return `${random_byte}${time}`.padStart(15, '0')
-
-
 }
 
 export const resourceCreatedResponse = (data: any, response: Response) => {
@@ -31,33 +33,30 @@ export const successResponse = (data: any, response: Response) => {
     })
 }
 
+export const errResponse = ({ errtype, message, statusCode, response }: { errtype: string, message: string | Array<any>, statusCode: number, response: Response }) => {
 
-export const userErrResponse = (err: any, response: Response) => {
-    return response.status(400).send({
-        mesaage: 'An error occurred',
-        result: err,
-        statusCode: 400
+    return response.status(statusCode).send({
+        status: statusCode,
+        error: errtype,
+        message: message
     })
 }
 
-export const isEligible = (user: number, reqbal: number) => {
-    return new Promise((resolve, reject) => {
-        db.select<number>('balance')
-            .from('wallets')
-            .where('user_id', user)
-            .first()
-            .then(bal => {
-                resolve(bal >= reqbal)
-            })
-            .catch(err => {
-                console.log(err)
-                reject(err)
-            })
+/**
+ * JSON 404 response
+ */
 
+
+export const fourOhFour:RequestHandler = (_req: any, response: Response) => {
+    return response.status(404).send({
+        status: 404,
+        error: 'Resource not found',
+        
     })
 }
 
-export const hashPassword = (pwd) => {
+
+export const hashPassword = (pwd): string => {
 
     let salt = Crypto.randomBytes(16).toString('base64')
     let hash = Crypto.createHmac('sha512', salt).update(pwd).digest('base64')
@@ -65,4 +64,28 @@ export const hashPassword = (pwd) => {
 
     return password
 
+}
+
+export const getUserFromWalletId = (walletId: number): Promise<Wallet> => {
+    const model = new WalletService()
+    return new Promise((resolve, reject) => {
+        
+        model.ReadSingleResource({ walletId: walletId })
+            .then((result) => {
+                
+                resolve(result)
+            })
+            .catch((err) => {
+                //console.log(err)
+                reject(err)
+            })
+    })
+}
+
+export const formatResult = (record : Transaction | Array<Transaction>) => {
+    if(Array.isArray(record)){
+        return record.map((el)=>{
+            el.beneficiary
+        })
+    }
 }

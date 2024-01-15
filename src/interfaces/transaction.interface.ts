@@ -4,7 +4,7 @@ export default interface Transaction {
     transactiontype: number,
     amount: number,
     transactionId: string,
-    beneficiary?: number,
+    beneficiary?: string,
     comment?: string,
     created_at?: Date,
     updated_at?: Date,

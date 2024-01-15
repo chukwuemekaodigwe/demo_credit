@@ -1,18 +1,21 @@
+import { Request, Response, NextFunction } from "express";
 import User from "../interfaces/user.interface";
 import UserService from "../models/user.model";
 import { successResponse, resourceCreatedResponse, hashPassword } from '../helpers/util'
+import { matchedData } from "express-validator";
 
 const model = new UserService()
 
 export default {
-    createUser: (req, res, next) => {
+    createUser: (req:Request, res:Response, next:NextFunction) => {
+        const reqData = matchedData(req, {locations: ['body']})
+    
         const data: User = {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            phone: req.body.phone,
-            email: req.body.email,
-            password: hashPassword(req.body.password),
-            address: req.body.address
+            firstname: reqData.firstname,
+            lastname: reqData.lastname,
+            phone: reqData.phone,
+            email: reqData.email,
+            password: hashPassword(reqData.password)
         }
 
         model.CreateResource(data).then((result) => {
@@ -23,18 +26,8 @@ export default {
             })
     },
 
-    // usersList: (req, res, next) => {
-    //     model.ReadResource().then(result=>{
-    //         successResponse(result, res)
-    //     })
-    //     .catch(err=>{
-    //         next(err)
-    //     })
-    // },
-
-    singleUser: (req, res, next) => {
+    singleUser: (req:Request, res:Response, next:NextFunction) => {
         const user = req.params.id
-
         model.ReadSingleResource({id:user}).then(result=>{
             successResponse(result, res)
         })
@@ -42,14 +35,15 @@ export default {
     },
 
 
-    updateUser: (req, res, next) => {
+    updateUser: (req:Request, res:Response, next:NextFunction) => {
+       const reqData = matchedData(req)
         const data: User = {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            phone: req.body.phone,
-            email: req.body.email,
-            password: hashPassword(req.body.password),
-            address: req.body.address
+            firstname: reqData.firstname,
+            lastname: reqData.lastname,
+            phone: reqData.phone,
+            email: reqData.email,
+            password: hashPassword(reqData.password),
+            address: reqData.address
         }
 
         const user = req.params.id
@@ -62,7 +56,7 @@ export default {
             })
     },
 
-    deleteUser: (req, res, next) => {
+    deleteUser: (req:Request, res:Response, next:NextFunction) => {
         const user = req.params.id
         model.DeleteResource({ id: user }).then(result=>{
             successResponse(result, res)
