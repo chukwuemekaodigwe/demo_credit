@@ -33,9 +33,10 @@ export default {
             })
     },
 
-    getWalletById: (req: Request, res: Response, next: NextFunction) => {
+    getWalletById: (req: Request&any, res: Response, next: NextFunction) => {
         const id = req.params.id
-        model.ReadSingleResource({ id: id })
+        const user = req.jwt.user
+        model.ReadSingleResource({ id: id , user_id: user})
             .then(result => {
                 return successResponse(result, res)
             })
@@ -44,9 +45,10 @@ export default {
             })
     },
 
-    deleteWallet: (req: Request, res: Response, next: NextFunction) => {
+    deleteWallet: (req: Request&any, res: Response, next: NextFunction) => {
         const wallet = req.params.id
-        model.DeleteResource({ id: wallet })
+        const user = req.jwt.user
+        model.DeleteResource({ id: wallet, user_id: user })
             .then(result => {
                 return successResponse(result, res)
             })

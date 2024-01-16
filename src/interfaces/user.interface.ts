@@ -2,7 +2,7 @@ export default interface User {
     id?: number,
     firstname: string,
     lastname: string,
-    email: string,
+    email?: string,
     phone?: number,
     address?: string,
     password: string,

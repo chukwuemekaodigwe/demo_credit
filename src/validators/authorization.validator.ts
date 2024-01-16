@@ -19,7 +19,7 @@ validationRules: () => {
            return  errResponse({
                 errtype: 'Invalid fields',
                 message: errors.array(),
-                statusCode: 422,
+                statusCode: 400,
                 response: res
             })
         }

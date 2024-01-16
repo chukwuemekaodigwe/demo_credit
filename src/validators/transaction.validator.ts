@@ -5,14 +5,12 @@ import { errResponse } from '../helpers/util';
 export default {
     validationRules: () => {
         return [
-            body('amount').isNumeric().notEmpty(),
+            body('amount').isNumeric().isFloat({min: 0}).notEmpty(),
             body('comments').isString().notEmpty().optional()
-
         ]
     },
 
     hasValidFields: (req: Request, res: Response, next: NextFunction) => {
-
         const errors = validationResult(req)
         if (errors.isEmpty()) {
             next()
@@ -20,7 +18,7 @@ export default {
             return errResponse({
                 errtype: 'Invalid fields',
                 message: errors.array(),
-                statusCode: 422,
+                statusCode: 400,
                 response: res
             })
         }

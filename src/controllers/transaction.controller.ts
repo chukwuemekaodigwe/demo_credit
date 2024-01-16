@@ -110,9 +110,10 @@ export default {
     },
 
     getTransactionById: (req: Request & any, res: Response, next: NextFunction) => {
-        const user = req.params.id
+        const id = req.params.id
+        const user = req.jwt.user
         const model = new TransactionService()
-        model.ReadSingleResource({ id: user }).then(result => {
+        model.ReadSingleResource({ id: id, user_id: user }).then(result => {
             successResponse(result, res)
         })
             .catch(err => {
@@ -122,7 +123,9 @@ export default {
 
     deleteTransaction: (req: Request & any, res: Response, next: NextFunction) => {
         const model = new TransactionService()
-        model.DeleteResource({ id: req.params.id }).then(result => {
+        const user = req.jwt.user
+
+        model.DeleteResource({ id: req.params.id, user_id: user }).then(result => {
             successResponse(result, res)
         })
             .catch(err => {

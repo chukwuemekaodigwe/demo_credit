@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --detectOpenHandles",
     "migrate": "knex migrate:latest --knexfile knexfile.ts",
     "dev": "npx nodemon",
     "build": "rimraf ./build && tsc",
@@ -18,17 +18,22 @@
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "mysql": "^2.18.1",
+    "ts-jest": "^29.1.1",
     "uuid": "^9.0.1",
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/cors": "^2.8.17",
     "@types/debug": "^4.1.12",
     "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
     "@types/node": "^20.10.8",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "rimraf": "^5.0.5",
     "source-map-support": "^0.5.21",
+    "supertest": "^6.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }

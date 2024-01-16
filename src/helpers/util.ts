@@ -1,13 +1,15 @@
 import { getRandomValues } from "crypto"
 import { Response } from "express"
-import db from '../database/connection'
 import * as Crypto from 'node:crypto'
-import WalletService from "../models/wallet.model"
-import Wallet from "../interfaces/wallet.interface"
 import Transaction from "../interfaces/transaction.interface"
-
+import Wallet from "../interfaces/wallet.interface"
+import WalletService from "../models/wallet.model"
+import UserService from "../models/user.model"
 import { RequestHandler } from 'express'
-
+import User from "../interfaces/user.interface"
+import TransactionService from "../models/transaction.model"
+import jwt from 'jsonwebtoken'
+import Config from './config'
 
 export const generateRandom = (): string => {
     let random_byte = new Uint32Array(1)
@@ -26,12 +28,20 @@ export const resourceCreatedResponse = (data: any, response: Response) => {
 }
 
 export const successResponse = (data: any, response: Response) => {
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+        return response.status(404).send({
+            message: 'No Result Found',
+            statusCode: 404
+        });
+    }
+
     return response.status(200).send({
-        mesaage: 'Request Successful',
+        message: 'Request Successful',
         result: data,
         statusCode: 200
-    })
-}
+    });
+};
+
 
 export const errResponse = ({ errtype, message, statusCode, response }: { errtype: string, message: string | Array<any>, statusCode: number, response: Response }) => {
 
@@ -45,7 +55,6 @@ export const errResponse = ({ errtype, message, statusCode, response }: { errtyp
 /**
  * JSON 404 response
  */
-
 
 export const fourOhFour:RequestHandler = (_req: any, response: Response) => {
     return response.status(404).send({
@@ -66,6 +75,15 @@ export const hashPassword = (pwd): string => {
 
 }
 
+export const signJwt = (user: User): string => {
+    const data = {
+        user: user.id,
+        email: user.email,
+        provider: 'email'
+    };
+    let token = jwt.sign(data, Config.jwtSecret);
+    return token
+}
 export const getUserFromWalletId = (walletId: number): Promise<Wallet> => {
     const model = new WalletService()
     return new Promise((resolve, reject) => {
@@ -83,9 +101,57 @@ export const getUserFromWalletId = (walletId: number): Promise<Wallet> => {
 }
 
 export const formatResult = (record : Transaction | Array<Transaction>) => {
+    const transactiontypes = ['Deposit', 'Withdrawal', 'Transfer']
     if(Array.isArray(record)){
         return record.map((el)=>{
-            el.beneficiary
+            //el.transactiontype = transactiontypes[el.transactiontype - 1]
         })
     }
+}
+
+export const CreateUserForTest = (data:User): Promise<User> => {
+    return new Promise((resolve, reject)=>{
+        const model = new UserService()
+        model.CreateResource(data)
+        .then(user =>{
+            resolve(user)
+        })
+        .catch(err=>{
+            reject(err)
+        })       
+    })
+}
+
+export const CreateUserAndWalletForTest = (data: User):Promise<User&Wallet> => {
+    return new Promise((resolve, reject) => {
+        CreateUserForTest(data).then((result)=>{
+            const newWallet:Wallet = {
+                user_id: result.id,
+                walletId: generateRandom(),
+                balance: 200.00
+            }
+            const walletModel = new WalletService()
+            walletModel.CreateResource(newWallet)
+            .then((res)=>{
+                resolve({...res, ...result})
+            })
+            .catch((err)=>{
+                reject(err)
+            })
+        })
+    })
+}
+
+export const DeleteUserResource = (userid:number) => {
+    return new Promise((resolve, reject) => {
+        const usermodel = new UserService()
+        const walletmodel = new WalletService()
+        const transactionmodel = new TransactionService()
+
+        usermodel.DeleteResource({id: userid})
+        walletmodel.DeleteResource({user_id: userid})
+        transactionmodel.DeleteResource({user_id: userid})
+
+        resolve(true)
+    })
 }

@@ -4,3 +4,4 @@ export default {
     jwtSecret: 'lendSqr_demoApp'
 }
 
+

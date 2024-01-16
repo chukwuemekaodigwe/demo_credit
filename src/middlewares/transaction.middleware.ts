@@ -24,6 +24,29 @@ export const hasWallet = async (req, res, next) => {
          })
  }
  
+
+ export const hasNoWallet = async (req, res, next) => {
+    const user = req.jwt.user
+    model.ReadSingleResource({ user_id: user })
+    .then((result) => {
+         if (!result) {
+            
+         return next()
+         }else{
+            return errResponse({
+                errtype: 'Invalid Request',
+                message: 'You can only open one wallet',
+                statusCode: 400,
+                response: res
+            })
+         }
+     })
+         .catch((error) => {
+             next(error)
+         })
+ }
+
+
 export const hasEnoughBal = (req:Request&any, res:Response, next:NextFunction) => {
     const reqData = matchedData(req)
     const user = req.jwt.user

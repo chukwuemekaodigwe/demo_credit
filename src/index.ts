@@ -35,3 +35,5 @@ app.listen(port, () => {
     const db = knex(knexConfig)
     
 })
+
+export default app

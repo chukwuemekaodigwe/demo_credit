@@ -27,11 +27,12 @@ export const VerifyCredentials = (req: Request&any, res: Response, next: NextFun
             let salt = passwordFields[0];
             let hash = crypto.createHmac('sha512', salt).update(password).digest("base64");
             if (hash === passwordFields[1]) {
-                req.token = {
-                    user: result.id,
-                    email: result.email,
-                    provider: 'email'
-                };
+                /**
+                 * req.token for jwtToken generation 
+                 * Accessed and generated at authorization controller
+                 * */
+                 req.token = result 
+                 
                 return next();
             } else {
                 return errResponse({
@@ -79,3 +80,4 @@ export const hasValidToken = (req: Request & any, res: Response, next: NextFunct
         })
     }
 }
+

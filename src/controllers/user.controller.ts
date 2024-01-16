@@ -26,28 +26,30 @@ export default {
             })
     },
 
-    singleUser: (req:Request, res:Response, next:NextFunction) => {
-        const user = req.params.id
-        model.ReadSingleResource({id:user}).then(result=>{
+    singleUser: (req:Request&any, res:Response, next:NextFunction) => {
+        const id = req.params.id
+        const user = req.jwt.user
+        model.ReadSingleResource({id: user}).then(result=>{
             successResponse(result, res)
         })
         .catch(err=>{next(err)})
     },
 
 
-    updateUser: (req:Request, res:Response, next:NextFunction) => {
-       const reqData = matchedData(req)
+    updateUser: (req:Request&any, res:Response, next:NextFunction) => {
+        const reqData = matchedData(req, {locations: ['body']})
+
         const data: User = {
             firstname: reqData.firstname,
             lastname: reqData.lastname,
             phone: reqData.phone,
-            email: reqData.email,
+            
             password: hashPassword(reqData.password),
-            address: reqData.address
+            
         }
 
-        const user = req.params.id
-
+        const id = req.params.id
+        const user = req.jwt.user
         model.UpdateResource({ id: user }, data).then(result => {
             successResponse(result, res)
         })
@@ -56,13 +58,15 @@ export default {
             })
     },
 
-    deleteUser: (req:Request, res:Response, next:NextFunction) => {
-        const user = req.params.id
+    deleteUser: (req:Request&any, res:Response, next:NextFunction) => {
+        const id = req.params.id
+        const user = req.jwt.user
         model.DeleteResource({ id: user }).then(result=>{
             successResponse(result, res)
         })
         .catch(err=>{
             next(err)
         })
-    }
+    },
+
 }

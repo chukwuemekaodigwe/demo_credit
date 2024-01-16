@@ -5,7 +5,7 @@ import Controller from './controllers'
 
 const route = express.Router()
 
-route.get('/', (req, res) => res.send(`Welcome to Demo Credit`))
+route.get('/', (req, res) => res.send(`Welcome to Demo Credit API`))
 route.post('/users',
     Validator.UserValidator.validationRules(),
     Validator.UserValidator.hasValidFields,
@@ -17,18 +17,20 @@ route.get('/users/:id', [
     Middleware.auth.hasValidToken,
     Controller.User.singleUser
 ])
-route.patch('/users/:id', [
-    Validator.ValidParams.validationRules(),
-    Validator.ValidParams.validParam,
+
+route.patch('/users/:id', 
+    Validator.UserValidator.validationRules(),
+    Validator.UserValidator.hasValidFields,
     Middleware.auth.hasValidToken,
     Controller.User.updateUser
-])
+)
 route.delete('/users/:id', [
     Validator.ValidParams.validationRules(),
     Validator.ValidParams.validParam,
     Middleware.auth.hasValidToken,
     Controller.User.deleteUser
 ])
+
 
 route.post('/login',
     Validator.ValidLoginFields.validationRules(),
@@ -39,13 +41,8 @@ route.post('/login',
 
 route.post('/wallets', [
     Middleware.auth.hasValidToken,
+    Middleware.transactions.hasNoWallet,
     Controller.Wallet.createWallet
-])
-route.get('/wallets/:id', [
-    Validator.ValidParams.validationRules(),
-    Validator.ValidParams.validParam,
-    Middleware.auth.hasValidToken,
-    Controller.Wallet.getWalletById
 ])
 
 /**
@@ -53,16 +50,15 @@ route.get('/wallets/:id', [
  */
 route.get('/wallets', [
     Middleware.auth.hasValidToken,
+    Middleware.transactions.hasWallet,
     Controller.Wallet.getUserWallet
 ])
 
-route.delete('/wallets/:id', [
-    Validator.ValidParams.validationRules(),
-    Validator.ValidParams.validParam,
+route.delete('/wallets', [
+    Middleware.transactions.hasWallet,
     Middleware.auth.hasValidToken,
     Controller.Wallet.deleteWallet
 ])
-
 
 route.post('/transactions/deposit',
     Validator.ValidTransactionFields.validationRules(),
@@ -95,20 +91,13 @@ route.get('/transactions/:id', [
     Middleware.transactions.hasWallet,
     Controller.Transaction.getTransactionById
 ])
+
 route.get('/transactions', [
     Middleware.auth.hasValidToken,
     Middleware.transactions.hasWallet,
     Controller.Transaction.getUserTransactions
 ])
 
-// Transaction by user_id
-route.get('/transactions/user/:user', [
-    Validator.ValidParams.validationRules(),
-    Validator.ValidParams.validParam,
-    Middleware.auth.hasValidToken,
-    Middleware.transactions.hasWallet,
-    Controller.Transaction.getUserTransactions
-])
 route.delete('/transactions/:id', [
     Validator.ValidParams.validationRules(),
     Validator.ValidParams.validParam,
@@ -117,5 +106,12 @@ route.delete('/transactions/:id', [
     Controller.Transaction.deleteTransaction
 ])
 
+
+route.get('/wallets/:id', [
+    Validator.ValidParams.validationRules(),
+    Validator.ValidParams.validParam,
+    Middleware.auth.hasValidToken,
+    Controller.Wallet.getWalletById
+])
 
 export default route

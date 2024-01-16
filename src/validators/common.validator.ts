@@ -16,7 +16,7 @@ export default {
             return errResponse({
                 errtype: 'Invalid parameter',
                 message: err.array(),
-                statusCode: 422,
+                statusCode: 404,
                 response: res
             })
         }
