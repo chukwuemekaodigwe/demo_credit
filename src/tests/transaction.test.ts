@@ -159,9 +159,11 @@ describe('Testing transaction Module', () => {
         let user
         beforeAll( async () => {
             // create new user for beneficiary
-           await CreateUserAndWalletForTest({...userData,  email: `email${generateRandom()}@gmail.com`}).then((newUserData) => {
+           await CreateUserAndWalletForTest({...userData,  email: `email${generateRandom()}@gmail.com`})
+           .then((newUserData) => {
                 transferData.beneficiary = newUserData.walletId
                 user = newUserData
+
             })
         })
 
@@ -170,7 +172,8 @@ describe('Testing transaction Module', () => {
         })
 
         it('should return 401 for requests without authorization headers', async () => {
-          await  request.post('/transactions/transfer').send(transferData).then(response => {
+          await  request.post('/transactions/transfer').send(transferData)
+          .then(response => {
                 expect(response.status).toBe(401)
             })
         })

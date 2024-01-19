@@ -11,20 +11,20 @@ route.post('/users',
     Validator.UserValidator.hasValidFields,
     Controller.User.createUser
 )
-route.get('/users/:id', [
+route.get('/users/:id?/', [
     Validator.ValidParams.validationRules(),
     Validator.ValidParams.validParam,
     Middleware.auth.hasValidToken,
     Controller.User.singleUser
 ])
 
-route.patch('/users/:id', 
+route.patch('/users/:id?', 
     Validator.UserValidator.validationRules(),
     Validator.UserValidator.hasValidFields,
     Middleware.auth.hasValidToken,
     Controller.User.updateUser
 )
-route.delete('/users/:id', [
+route.delete('/users/:id?', [
     Validator.ValidParams.validationRules(),
     Validator.ValidParams.validParam,
     Middleware.auth.hasValidToken,

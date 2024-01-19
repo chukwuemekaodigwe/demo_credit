@@ -1,12 +1,14 @@
 import { Knex, knex } from "knex";
+import env  from "./src/helpers/config";
+
 
 const config: Knex.Config = {
     client: 'mysql',
     connection: {
-        host: '127.0.0.1',
-        user: 'root',
-        password: 'password',
-        database: 'lendsqr_democredit'
+        host: env.DB_HOST,
+        user: env.DB_USERNAME,
+        password: env.DB_PASSWORD,
+        database: env.DB_NAME
     },
     migrations: {
         

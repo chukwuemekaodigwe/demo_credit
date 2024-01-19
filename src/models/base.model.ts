@@ -7,7 +7,7 @@ import Transaction from '../interfaces/transaction.interface'
 type Result = Wallet & User & Transaction
 type Data = Wallet | User | Transaction
 
-export default class CrudService {
+export default class BaseService {
     private resourcename
 
     constructor(resourcename: string) {

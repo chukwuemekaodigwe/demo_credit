@@ -1,11 +1,11 @@
-import CrudServiceHelper from "../helpers/CrudService.helper";
+import BaseService from "./base.model";
 import Wallet from "../interfaces/wallet.interface";
 import db from '../database/connection'
 import User from "../interfaces/user.interface";
 
 type Data = User & Wallet
 
-export default class WalletService extends CrudServiceHelper {
+export default class WalletService extends BaseService {
 
     constructor() {
         super('wallets')

@@ -4,7 +4,7 @@ import { errResponse } from '../helpers/util';
 
 export default {
     validationRules : () => {
-        return param('*').notEmpty().isNumeric()
+        return param('*').notEmpty().isNumeric().optional()
 
     },
     

@@ -5,10 +5,12 @@ import WalletService from "../models/wallet.model";
 
 
 const model = new WalletService()
+
 export const hasWallet = async (req, res, next) => {
     const user = req.jwt.user
     model.ReadSingleResource({ user_id: user })
     .then((result) => {
+
          if (!result) {
             return errResponse({
                 errtype: 'Not found',
@@ -54,6 +56,7 @@ export const hasEnoughBal = (req:Request&any, res:Response, next:NextFunction) =
         if(result.balance >= reqData.amount){
             next()
         }else{
+console.log({'bal': user})
             return errResponse({
                 errtype: 'Invalid Request',
                 message: 'You dont have enough balance to perform this transaction',

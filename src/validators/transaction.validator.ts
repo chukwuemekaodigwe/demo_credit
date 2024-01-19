@@ -15,6 +15,7 @@ export default {
         if (errors.isEmpty()) {
             next()
         } else {
+    console.log(errors)
             return errResponse({
                 errtype: 'Invalid fields',
                 message: errors.array(),

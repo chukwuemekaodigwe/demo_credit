@@ -1,7 +1,7 @@
 import Transaction from '../interfaces/transaction.interface'
 import Wallet from '../interfaces/wallet.interface'
 import TransactionService from '../models/transaction.model'
-import { successResponse, resourceCreatedResponse, getUserFromWalletId, errResponse } from '../helpers/util'
+import { successResponse, resourceCreatedResponse, getUserFromWalletId, getWalletFromUserId, errResponse } from '../helpers/util'
 import { Request, Response, NextFunction } from 'express'
 import { matchedData } from 'express-validator'
 
@@ -16,20 +16,25 @@ export default {
         const user = req.jwt.user // user_id from the jsonwebtoken decrypted crdentials
         const timestamp = new Date().getTime().toString()
         const model = new TransactionService()
+        getWalletFromUserId(user).then(wallet => {
 
-        const data: Transaction = {
-            user_id: user,
-            transactiontype: DEPOSIT,
-            amount: (reqData.amount),
-            transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
-            comment: `Deposit by User | ${reqData.comments}`
-        }
-        model.AddTransaction(data).then(result => {
-            resourceCreatedResponse(result, res)
-        })
-            .catch(err => {
-                next(err)
+            const data: Transaction = {
+                user_id: user,
+                transactiontype: DEPOSIT,
+                amount: (reqData.amount),
+                transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
+                comment: `Deposit by User | ${reqData.comments}`,
+                beneficiary: wallet.walletId
+            }
+            model.AddTransaction(data).then(result => {
+                resourceCreatedResponse(result, res)
             })
+                .catch(err => {
+                    next(err)
+                })
+        }).catch(err => {
+            next(err)
+        })
     },
 
 
@@ -38,16 +43,22 @@ export default {
         const user = req.jwt.user
         const timestamp = new Date().getTime().toString()
         const model = new TransactionService()
-        const data: Transaction = {
-            user_id: user,
-            transactiontype: WITHDRWAL,
-            amount: -(reqData.amount),
-            transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
-            comment: `Withdrawal by user, Comment: ${reqData.comments}`
-        }
+        getWalletFromUserId(user).then(wallet => {
 
-        model.AddTransaction(data).then((result) => {
-            resourceCreatedResponse(result, res)
+            const data: Transaction = {
+                user_id: user,
+                transactiontype: WITHDRWAL,
+                amount: -(reqData.amount),
+                transactionId: `#${user}${timestamp}`, // Combining user_id and timestamp to ensure it's unique and simple
+                comment: `Withdrawal by user, Comment: ${reqData.comments}`,
+                beneficiary: wallet.walletId
+            }
+            model.AddTransaction(data).then((result) => {
+                resourceCreatedResponse(result, res)
+            })
+                .catch(err => {
+                    next(err)
+                })
         })
             .catch(err => {
                 next(err)
@@ -62,7 +73,6 @@ export default {
         const model = new TransactionService()
 
         getUserFromWalletId(reqData.beneficiary).then(beneficiary => {
-
             const data: Transaction = {
                 user_id: user,
                 transactiontype: TRANSFER,
@@ -81,7 +91,7 @@ export default {
                 }).then(result2 => result2)
 
                 return resourceCreatedResponse(result, res)
-                    
+
             })
                 .catch(err => {
                     next(err)
@@ -89,7 +99,7 @@ export default {
         })
             .catch(err => {
                 return errResponse({
-                    errtype: 'Invalid Request'+err,
+                    errtype: 'Invalid Request' + err,
                     message: 'Beneficiary not found, please cross check wallet Id',
                     statusCode: 400,
                     response: res

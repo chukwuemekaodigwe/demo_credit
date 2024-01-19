@@ -1,5 +1,5 @@
 import knex, { Knex } from "knex";
-import CrudServiceHelper from "../helpers/CrudService.helper";
+import BaseService from "./base.model";
 import db from '../database/connection'
 import Transaction from "../interfaces/transaction.interface";
 import Wallet from "../interfaces/wallet.interface";
@@ -7,7 +7,7 @@ import WalletService from "./wallet.model";
 import User from "../interfaces/user.interface";
 
 type Data = Wallet & Transaction & User
-export default class TransactionService extends CrudServiceHelper {
+export default class TransactionService extends BaseService {
 
     constructor() {
         super('transactions')
@@ -49,6 +49,7 @@ export default class TransactionService extends CrudServiceHelper {
         return new Promise((resolve, reject)=>{
             db.select('*')
             .from('transactions')
+            .where(option)
             //.join('users', 'users.id', 'transactions.beneficiary')
             //.join('wallets', 'wallets.user_id', 'transactions.beneficiary')
             .then(result=>{

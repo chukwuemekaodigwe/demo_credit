@@ -100,6 +100,24 @@ export const getUserFromWalletId = (walletId: number): Promise<Wallet> => {
     })
 }
 
+export const getWalletFromUserId = (userId: number): Promise<Wallet> => {
+    const model = new WalletService()
+    return new Promise((resolve, reject) => {
+        
+        model.ReadSingleResource({ user_id: userId })
+            .then((result) => {
+                
+                resolve(result)
+            })
+            .catch((err) => {
+                //console.log(err)
+                reject(err)
+            })
+    })
+}
+
+
+
 export const formatResult = (record : Transaction | Array<Transaction>) => {
     const transactiontypes = ['Deposit', 'Withdrawal', 'Transfer']
     if(Array.isArray(record)){

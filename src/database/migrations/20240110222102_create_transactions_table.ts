@@ -11,13 +11,13 @@ export async function up(knex: Knex): Promise<void> {
         table.string('transactionId').notNullable();
         table.string('beneficiary').nullable()
         table.text('comments').nullable();
-        table.timestamps(false, true)
+        table.timestamps()
     })
 }
 
 
 export async function down(knex: Knex): Promise<void> {
     return knex.schema
-    .dropSchemaIfExists('transactions')
+    .dropTable('transactions')
 }
 
