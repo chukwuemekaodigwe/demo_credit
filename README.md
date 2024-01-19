@@ -110,8 +110,8 @@ To access the service, a user needs to log in with their email as the username a
 
 
 ### Database Implementation
+![Database ER diagram](https://github.com/chukwuemekaodigwe/demo_credit/assets/94064248/d035456f-d595-4397-96d8-3fe05a8c5f43)
 
-<img src="https://res.cloudinary.com/dfl15pkea/image/upload/v1705696890/LENDSQR_fvbihu.jpg" alt="Database ER diagram"/>
 
 The project is implemented using three database tables: users, wallets and transactions. The `users` table stores every information about the user, namely
 
