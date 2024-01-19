@@ -62,7 +62,7 @@ To access the service, a user needs to log in with their email as the username a
 
 - `POST /api/users`
 
-  To create account. That is the guest submits firstname, lastname, email, password and optional phone number as a payload using this route. I made this routes simple and easy to enable easy use and remeberance of the routes.
+  To create account. That is the guest submits firstname, lastname, email, password and optional phone number as a payload using this route. I made this routes simple and easy to enable easy use and remembrance of the routes.
 
 - `POST /api/login`
 
@@ -109,7 +109,8 @@ To access the service, a user needs to log in with their email as the username a
   To enable a user to close or terminate their wallet without deleting their account.
 
 
-### Database Implemetation
+### Database Implementation
+
 <img src="https://res.cloudinary.com/dfl15pkea/image/upload/v1705696890/LENDSQR_fvbihu.jpg" alt="Database ER diagram"/>
 
 The project is implemented using three database tables: users, wallets and transactions. The `users` table stores every information about the user, namely
@@ -128,11 +129,11 @@ The project is implemented using three database tables: users, wallets and trans
     
 ```
 
-Wallets table has the detail about each user's wallet: the balance, walletId or wallet account no, atc. The wallets where given a table so this system can be extended to allow users own more than one wallet.
+Wallets table has detail about each user's wallet: the balance, walletId or wallet account no, atc. The wallets where given a table so this system can be extended to allow users to own more than one wallet.
 
 ```
     id
-    user_id
+    user_id             //foreign key to the user table
     walletId
     created_at
     updated_at
@@ -142,8 +143,8 @@ While the transaction table has the following, including a foreign key to the us
 
 ```
     id
-    user_id             // foreigh key to the users table
-    transactionId       // unique id to publicly represent thuis transaction
+    user_id             //foreign key to the users table
+    transactionId       // unique id to publicly represent this transaction
     amount
     comment
     transactiontype     // detail below
@@ -161,15 +162,15 @@ Here I create a way to enable every type of transaction supported by the company
     3 ==> TRANSFER
 
 ```
-This makes for easy management and expansion. The types can easily be expaneded without need of modifying the database schema. It would be implemented on the code, which I already gave room for by creating a base model that orchstras all operations needing little or no adjustment to meet specific needs.
+This makes for easy management and expansion. The types can easily be expanded without the need to modify the database schema. It would be implemented on the code, which I already gave room for by creating a base model that orchestrates all operations needing little or no adjustment to meet specific needs.
 
-### Little explanantion about the database models
+### Little explanation about the database models
 
-In my project model I have one base model in which i implemented all the database CRUD operations implemented within the baseservice class. Then all other models, namely `users`, `wallets`, and `transactions` implements and extends this base class to inherit its menthods and either extend or add new methods to it to siut their use case. This gives us an edge of a maintainable, scaleable, readable and reliable code.
+In my project model, I have one base model in which I implemented all the database CRUD operations implemented within the `BaseService` class. Then all other models, namely `users`, `wallets`, and `transactions` implement and extend this base class to inherit its methods and either extend or add new methods to it to siut their use case. This gives us an edge of maintainable, scaleable, readable and reliable code.
 
 ### Installation and Use
 
-To clone or use the project code you need to `clone this repq`, then ensure you have latest `nodejs` installed. Then run
-`npm install` within th project directory, then create the database and add its credential to the project by creating a .env file and copying the example.env into it and edit as your requirements. 
+To clone or use the project code you need to `clone this repo`, then ensure you have the latest `nodejs` installed. Then run
+`npm install` within the project directory, then create the database and add its credential to the project by creating a .env file copying the `sample.env` into it and editing as per your requirements. 
 
-Then run `npx knex migrate:latest` to install the database tablesa and configuarations. On success, run `npm run dev` to start the development server of this project
+Then run `npx knex migrate:latest` to install the database tables and configurations. On success, run `npm run dev` to start the development server of this project
