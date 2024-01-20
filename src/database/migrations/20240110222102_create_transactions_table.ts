@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
         table.decimal('amount').notNullable();
         table.string('transactionId').notNullable();
         table.string('beneficiary').nullable()
-        table.text('comments').nullable();
+        table.text('comment').nullable();
         table.timestamps()
     })
 }
