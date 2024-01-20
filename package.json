@@ -7,8 +7,8 @@
     "test": "jest --detectOpenHandles",
     "migrate": "knex migrate:latest --knexfile knexfile.ts",
     "dev": "npx nodemon",
-    "build": "npx tsc",
-    "start": "node ./dist/src/index.js"
+    "build": "npx tsc & ln ./README.md ./dist/src/README.md",
+    "start": "pm2 ./dist/src/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
