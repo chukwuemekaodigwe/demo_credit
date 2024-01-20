@@ -17,8 +17,8 @@ export const VerifyCredentials = (req: Request&any, res: Response, next: NextFun
         if (!result) {
             return errResponse({
                     errtype: 'Authentication Error',
-                    message: 'Invalid Authentication',
-                    statusCode: 401,
+                    message: 'Invalid Credentials',
+                    statusCode: 400,
                     response: res
                 })
         }
@@ -37,8 +37,8 @@ export const VerifyCredentials = (req: Request&any, res: Response, next: NextFun
             } else {
                 return errResponse({
                     errtype: 'Authentication Error',
-                    message: 'Invalid Authentication',
-                    statusCode: 401,
+                    message: 'Invalid Credentials',
+                    statusCode: 400,
                     response: res
                 })
             }
