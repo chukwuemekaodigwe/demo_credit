@@ -8,7 +8,7 @@
     "migrate": "knex migrate:latest --knexfile knexfile.ts",
     "dev": "npx nodemon",
     "build": "npx tsc",
-    "start": "npx nodemon ./dist/src/index.js"
+    "start": "node ./dist/src/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
