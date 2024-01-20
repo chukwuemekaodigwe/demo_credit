@@ -36,7 +36,7 @@ export default {
     getWalletById: (req: Request&any, res: Response, next: NextFunction) => {
         const id = req.params.id
         const user = req.jwt.user
-        model.ReadSingleResource({ id: id , user_id: user})
+        model.ReadSingleResource({ user_id: user})
             .then(result => {
                 return successResponse(result, res)
             })
@@ -48,7 +48,7 @@ export default {
     deleteWallet: (req: Request&any, res: Response, next: NextFunction) => {
         const wallet = req.params.id
         const user = req.jwt.user
-        model.DeleteResource({ id: wallet, user_id: user })
+        model.DeleteResource({ user_id: user })
             .then(result => {
                 return successResponse(result, res)
             })
